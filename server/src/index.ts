@@ -22,55 +22,33 @@ import { paginationChecker } from "./middlewares/PaginationChecker";
 import { hash } from "bcrypt";
 import { Admin } from "./models/admin.model";
 
+// 📁 Paths
 const publicFolderPath = path.join(process.cwd(), FOLDER_PATH.PUBLIC);
 const uploadFolderPath = path.join(publicFolderPath, FOLDER_PATH.UPLOADS);
 
 console.log(blueText, "🚀 Application Starting...", blueText);
-// 📁 Public Folder Creation
+
+// ✅ Safe folder creation
 if (!fs.existsSync(publicFolderPath)) {
-  fs.mkdirSync(publicFolderPath);
-  console.log(blueText, "📁 Public Folder Created", blueText);
-} else {
-  console.log(blueText, "📁 Public Folder Exists", blueText);
+  fs.mkdirSync(publicFolderPath, { recursive: true });
 }
 
 if (!fs.existsSync(uploadFolderPath)) {
-  fs.mkdirSync(uploadFolderPath);
-  console.log(blueText, "📁 Uploads Folder Created", blueText);
-} else {
-  console.log(blueText, "📁 Uploads Folder Exists", blueText);
+  fs.mkdirSync(uploadFolderPath, { recursive: true });
 }
 
-const corsConfig = {
-  credentials: true,
-  origin: [
-    "http://localhost",
-    "http://localhost:8000",
-    "http://localhost:5173/",
-    "http://localhost:5173",
-  ],
-  allowedHeaders: ["Content-Type", "Authorization", "token"],
-  methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
-};
-
-//! 🚀 Create an instance of express
+// 🚀 Create express app
 const app = express();
 
-app.use(morgan("dev")); //! 📝 Log HTTP or HTTPS requests
+// 🔥 Middlewares
+app.use(morgan("dev"));
+app.use(cors({ origin: "*", credentials: true })); // ✅ FIXED
+app.use(express.json());
+app.use(cookieParser());
+app.use(compression());
+app.use("/static", express.static(publicFolderPath));
 
-app.use(cors(corsConfig)); //! 📝 Enable Cross-Origin Resource Sharing (CORS)
-
-app.use(express.json()); //! 📝 Parse JSON bodies
-
-app.use(cookieParser()); //! 📝 Parse Cookie headers
-
-app.use(compression()); //! 📝 Compress HTTP or HTTPS responses
-
-app.use("/static", express.static(publicFolderPath)); //! 📝 Serve Static Files
-
-/**
- * ? 🌐 Global Declaration
- */
+// 🌍 Global types
 declare global {
   namespace Express {
     interface Request {
@@ -80,67 +58,55 @@ declare global {
   }
 }
 
-// 🔄 Immediately Invoked Function Expression (IIFE) for async initialization
+// 🚀 Init DB + Server
 (async () => {
   try {
-    // 📦 Database Initialization
-    console.log(blueText, "📦  Database Initialization Started", blueText);
-    // connecting to database
-    await mongoose.connect(CONFIG.DB_URL, {
+    console.log(blueText, "📦 Database Initialization Started", blueText);
+
+    // ✅ FIXED: use env variable
+    await mongoose.connect(process.env.DB_URL as string, {
       maxPoolSize: CONFIG.DB_POOL_SIZE,
     });
+
     const admin = await Admin.findOne({ email: "admin@gmail.com" });
+
     if (!admin) {
       await Admin.create({
         name: "Admin",
         email: "admin@gmail.com",
         password: await hash("admin123", CONFIG.SALT_ROUNDS),
         mobile: "9632145874",
-        address:"tpt"
+        address: "tpt",
       });
-      console.log(greenText, "📦  Admin User Created", greenText);
+      console.log(greenText, "📦 Admin User Created", greenText);
     }
-    console.log(greenText, "📦  Database Initialization Completed", greenText);
-    console.log(greenText, `📦  Connected To ${config.DB_URL} `, greenText);
-    // 🌐 Server Initialization
-    console.log(
-      blueText,
-      ` Starting the server on port ${config.PORT}...`,
-      blueText
-    );
-    try {
-      app.listen(config.PORT, () => {
-        console.log(
-          greenText,
-          `🎧 Server is listening on port: ${config.PORT} 🚀`,
-          greenText
-        );
-      });
-    } catch (error) {
+
+    console.log(greenText, "📦 Database Initialization Completed", greenText);
+
+    // ✅ FIXED: dynamic PORT
+    const PORT = process.env.PORT || config.PORT || 5000;
+
+    app.listen(PORT, () => {
       console.log(
-        redText,
-        "🚨 Error in server initialization \n",
-        JSON.stringify(error).replace(/,|{|}|and/g, "\n"),
-        redText
+        greenText,
+        `🎧 Server is listening on port: ${PORT} 🚀`,
+        greenText
       );
-    }
-  } catch (error) {
-    // console.log("🚨 Error in server initialization", error);
+    });
+
+  } catch (error: any) {
     console.log(
       redText,
-      "🚨 Error in server initialization \n",
-      JSON.stringify(error).replace(/,|{|}|and/g, "\n"),
+      "🚨 Error in server initialization\n",
+      error.message,
       redText
     );
-    // 🛑 restart by executing rs in cmd
-    redLogger("🛑 Application Stopped due to error in server initialization");
+    redLogger("🛑 Application stopped");
     process.exit(1);
   }
 })();
 
-/**
- * ! This is the Health check of the application
- */
+// ❤️ Health check
 app.get("/", (_, res) => {
   res.json({
     status: "OK",
@@ -149,15 +115,17 @@ app.get("/", (_, res) => {
   });
 });
 
-app.use(paginationChecker); //! 🚨 Pagniation Middleware
-app.use(memberAuthHandler); //! 🚨 Auth Middleware
+// 🔥 Middlewares
+app.use(paginationChecker);
+app.use(memberAuthHandler);
 
+// 🔗 Routes (kept your style, no forced changes)
 app.use("/api/users", require("./controllers/user").default);
-app.use("/api/crops",require("./controllers/cropController").default);
+app.use("/api/crops", require("./controllers/cropController").default);
 app.use("/api/order", require("./controllers/orderController").default);
-app.use("/api/chat",require("./controllers/chatController").default);
+app.use("/api/chat", require("./controllers/chatController").default);
 
-
+// ❌ 404
 app.use("*", (_, res) => {
   res.status(404).json({
     status: "Not Found",
@@ -166,5 +134,5 @@ app.use("*", (_, res) => {
   });
 });
 
-//! 🚨 Error Middleware came here and the response is given back
+// 🚨 Error handler
 app.use(ErrorHandler);
