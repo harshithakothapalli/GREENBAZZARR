@@ -22,6 +22,12 @@ import { paginationChecker } from "./middlewares/PaginationChecker";
 import { hash } from "bcrypt";
 import { Admin } from "./models/admin.model";
 
+// ✅ IMPORT ROUTES (IMPORTANT FIX)
+import userRoutes from "./controllers/user";
+import cropRoutes from "./controllers/cropController";
+import orderRoutes from "./controllers/orderController";
+import chatRoutes from "./controllers/chatController";
+
 // 📁 Paths
 const publicFolderPath = path.join(process.cwd(), FOLDER_PATH.PUBLIC);
 const uploadFolderPath = path.join(publicFolderPath, FOLDER_PATH.UPLOADS);
@@ -42,7 +48,7 @@ const app = express();
 
 // 🔥 Middlewares
 app.use(morgan("dev"));
-app.use(cors({ origin: "*", credentials: true })); // ✅ FIXED
+app.use(cors({ origin: "*", credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use(compression());
@@ -63,7 +69,6 @@ declare global {
   try {
     console.log(blueText, "📦 Database Initialization Started", blueText);
 
-    // ✅ FIXED: use env variable
     await mongoose.connect(process.env.DB_URL as string, {
       maxPoolSize: CONFIG.DB_POOL_SIZE,
     });
@@ -83,7 +88,6 @@ declare global {
 
     console.log(greenText, "📦 Database Initialization Completed", greenText);
 
-    // ✅ FIXED: dynamic PORT
     const PORT = process.env.PORT || config.PORT || 5000;
 
     app.listen(PORT, () => {
@@ -118,13 +122,13 @@ app.get("/", (_, res) => {
 // 🔥 Middlewares
 app.use(paginationChecker);
 
+// 🔗 ROUTES (FIXED)
+app.use("/api/users", userRoutes);
+app.use("/api/crops", cropRoutes);
+app.use("/api/order", orderRoutes);
+app.use("/api/chat", chatRoutes);
 
-// 🔗 Routes (kept your style, no forced changes)
-app.use("/api/users", require("./controllers/user").default);
-app.use("/api/crops", require("./controllers/cropController").default);
-app.use("/api/order", require("./controllers/orderController").default);
-app.use("/api/chat", require("./controllers/chatController").default);
-
+// 🔐 Auth AFTER routes
 app.use(memberAuthHandler);
 
 // ❌ 404
