@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-    baseURL: "http://localhost:8000/api",
+    baseURL: "https://greenbazarr-4.onrender.com/api",
     withCredentials: true
 });
 
