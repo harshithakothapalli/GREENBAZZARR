@@ -117,13 +117,15 @@ app.get("/", (_, res) => {
 
 // 🔥 Middlewares
 app.use(paginationChecker);
-app.use(memberAuthHandler);
+
 
 // 🔗 Routes (kept your style, no forced changes)
 app.use("/api/users", require("./controllers/user").default);
 app.use("/api/crops", require("./controllers/cropController").default);
 app.use("/api/order", require("./controllers/orderController").default);
 app.use("/api/chat", require("./controllers/chatController").default);
+
+app.use(memberAuthHandler);
 
 // ❌ 404
 app.use("*", (_, res) => {
