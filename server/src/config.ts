@@ -26,10 +26,10 @@ const CONFIG = {
 
   // Cookie Configuration
   COOKIE_SETTINGS: {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
-    maxAge: 1000 * 60 * 10, // 10 minute
-  },
+  httpOnly: true,
+  secure: true,
+  sameSite: "none",
+  maxAge: 1000 * 60 * 10
+},
 };
 export default CONFIG;
