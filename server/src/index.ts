@@ -52,6 +52,7 @@ app.use(cors({
    origin: true,
     credentials: true
    }));
+   app.options("*", cors()); // 🔥 THIS LINE FIXES PREFLIGHT
 app.use(express.json());
 app.use(cookieParser());
 app.use(compression());
