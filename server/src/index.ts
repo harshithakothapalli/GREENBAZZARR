@@ -50,7 +50,10 @@ const app = express();
 app.use(morgan("dev"));
 app.use(cors({
    origin: true,
-    credentials: true
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+
    }));
    app.options("*", cors()); // 🔥 THIS LINE FIXES PREFLIGHT
 app.use(express.json());
