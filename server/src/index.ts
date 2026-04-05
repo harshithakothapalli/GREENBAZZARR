@@ -49,8 +49,7 @@ const app = express();
 // 🔥 Middlewares
 app.use(morgan("dev"));
 app.use(cors({
-   origin: ["https://harshithakothapalli-greenbazarr.vercel.app"
-   ],
+   origin: true,
     credentials: true
    }));
 app.use(express.json());
