@@ -21,6 +21,7 @@ import CONFIG from "./config";
 import { paginationChecker } from "./middlewares/PaginationChecker";
 import { hash } from "bcrypt";
 import { Admin } from "./models/admin.model";
+console.log("🚨 REGISTERING ROUTES...");
 
 // ✅ IMPORT ROUTES (IMPORTANT FIX)
 import userRoutes from "./controllers/user.js";

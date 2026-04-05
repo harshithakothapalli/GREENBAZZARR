@@ -27,6 +27,7 @@ import {
 } from "../constants/lib";
 import CONFIG from "../config";
 import { File } from "buffer";
+console.log("🔥 USER ROUTES FILE LOADED");
 
 const router = Router();
 router.get("/ping", (req, res) => {
