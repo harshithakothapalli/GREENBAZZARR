@@ -29,6 +29,9 @@ import CONFIG from "../config";
 import { File } from "buffer";
 
 const router = Router();
+router.get("/ping", (req, res) => {
+  res.json({ msg: "user route working" });
+});
 
 type AddUser = IBaseUser & {
   role: Role;
