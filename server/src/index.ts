@@ -116,6 +116,9 @@ declare global {
     process.exit(1);
   }
 })();
+app.get("/test", (req, res) => {
+  res.json({ msg: "MAIN SERVER WORKING" });
+});
 
 // ❤️ Health check
 app.get("/", (_, res) => {
