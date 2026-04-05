@@ -23,7 +23,7 @@ import { hash } from "bcrypt";
 import { Admin } from "./models/admin.model";
 
 // ✅ IMPORT ROUTES (IMPORTANT FIX)
-import userRoutes from "./controllers/user";
+import userRoutes from "./controllers/user.js";
 import cropRoutes from "./controllers/cropController";
 import orderRoutes from "./controllers/orderController";
 import chatRoutes from "./controllers/chatController";
